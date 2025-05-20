@@ -23,6 +23,9 @@ app.use(express.static(path.join(__dirname + "/public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+//routing instantiation
+const bookRoutes = require("./routes/bookRoutes");
+
 //routes
 app.get("/", (request, response, next) => {
     //response.send("This route points to the index page")
@@ -32,45 +35,12 @@ app.get("/", (request, response, next) => {
     });
 });
 
-app.get("/api/books", (request, response, next) => {
-    //response.send("This route will send all of the book data")
-    response.status(200).json({
-        success: { message: "This route will send all of the book data"},
-        statusCode: 200,
-    });
-});
 
-app.get("/api/books/:id", (request, response, next) => {
-    //response.send("This route will send a single book by its id")
-    response.status(200).json({
-        success: { message: "This route will send a single book by its id"},
-        statusCode: 200,
-    });
-});
 
-app.get("/api/books/create/new", (request, response, next) => {
-    //response.send("This route will create a new book")
-    response.status(200).json({
-        success: { message: "This route will create a new book"},
-        statusCode: 200,
-    });
-});
+//routing call
 
-app.get("/api/books/update/:id", (request, response, next) => {
-    //response.send("This route will update a book by its id")
-    response.status(200).json({
-        success: { message: "This route will update a book by its id"},
-        statusCode: 200,
-    });
-});
+app.use("/api/books", bookRoutes);
 
-app.get("/api/books/delete/:id", (request, response, next) => {
-    //response.send("This route will delete a book by its id")
-    response.status(200).json({
-        success: { message: "This route will delete a book by its id"},
-        statusCode: 200,
-    });
-});
 
 //listener
 app.listen(PORT, () => {
