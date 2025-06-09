@@ -27,9 +27,9 @@ const userSchema = new Schema({
   googleId: {
     type: String,
   },
-  githubId: {
-    type: String,
-  },
+  //   githubId: {
+  //     type: String,
+  //   },
 });
 
 const User = mongoose.model("User", userSchema);
