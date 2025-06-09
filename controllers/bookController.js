@@ -1,21 +1,18 @@
-const booksData = require("../data/books");
+//const booksData = require("../data/books");
+
+const Book = require("../models/bookModel");
 
 const getAllBooks = async (request, response, next) => {
   try {
-    const books = booksData;
+    const books = await Book.find({});
 
     response.status(200).json({
       success: { message: "This route sends all of the book data" },
-      data: books,
+      data: { books },
       statusCode: 200,
     });
   } catch (error) {
-    response.status(400).json({
-      error: {
-        message:
-          "There was an error when retrieving the books. Please try again later.",
-      },
-    });
+    return next(error);
   }
 };
 
@@ -23,19 +20,24 @@ const getBook = async (request, response, next) => {
   const { _id } = request.params;
 
   try {
-    const book = booksData.find((book) => book._id === _id);
+    //const book = booksData.find((book) => book._id === _id);
+
+    if (!_id) {
+      throw new Error("Id is required");
+    }
+    const book = await Book.findById(_id);
+
+    if (!book) {
+      throw new Error("No book found by given ID");
+    }
+
     response.status(200).json({
       success: { message: "This route sends a single book by its id" },
-      data: book,
+      data: { book },
       statusCode: 200,
     });
   } catch (error) {
-    response.status(400).json({
-      error: {
-        message:
-          "There was an error when retrieving the book. Please try again later.",
-      },
-    });
+    return next(error);
   }
 };
 
@@ -43,37 +45,13 @@ const createBook = async (request, response, next) => {
   const { title, author, publisher, genre, pages, rating, synopsis, imageURL } =
     request.body;
 
-  const newBook = {
-    title,
-    author,
-    publisher,
-    genre,
-    pages,
-    rating,
-    synopsis,
-    imageURL,
-  };
   try {
-    books.push(newBook);
-    response.status(201).json({
-      success: { message: "This route created a new book" },
-      data: newBook,
-      statusCode: 201,
-    });
-  } catch (error) {
-    return response.status(400).json({
-      error: { message: "There is an error when creating a book" },
-    });
-  }
-};
+    // books.push(newBook);
+    if (!title || !author || !pages) {
+      throw new Error("Missing required fields, please review.");
+    }
 
-const updateBook = async (request, response, next) => {
-  const { _id } = request.params;
-  const { title, author, publisher, pages, rating, synopsis, imageURL } =
-    request.body;
-
-  try {
-    const updatedBook = {
+    const newBook = {
       title,
       author,
       publisher,
@@ -83,8 +61,50 @@ const updateBook = async (request, response, next) => {
       synopsis,
       imageURL,
     };
-    const foundBookIndex = books.find((book) => book._id === _id);
-    books[foundBookIndex] = newBook;
+
+    await newBook.save;
+
+    response.status(201).json({
+      success: { message: "This route created a new book" },
+      data: newBook,
+      statusCode: 201,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const updateBook = async (request, response, next) => {
+  const { _id } = request.params;
+  const { title, author, publisher, pages, rating, synopsis, imageURL } =
+    request.body;
+
+  try {
+    if (!title || !author || !pages) {
+      throw new Error("Missing required fields, please review.");
+    }
+
+    const updatedBook = await Book.findByIdAndUpdate(
+      _id,
+      {
+        $set: {
+          title,
+          author,
+          publisher,
+          pages,
+          rating,
+          synopsis,
+          imageUrl,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedBook) {
+      throw new Error("Book not found");
+    }
+    //const foundBookIndex = books.find((book) => book._id === _id);
+    //books[foundBookIndex] = newBook;
 
     response.status(201).json({
       success: { message: "This route updated a book by its id" },
@@ -92,27 +112,29 @@ const updateBook = async (request, response, next) => {
       statusCode: 201,
     });
   } catch (error) {
-    return response.status(400).json({
-      error: { message: "There is an error when updating a book" },
-    });
+    return next(error);
   }
 };
 
-const deleteBook = (request, response, next) => {
+const deleteBook = async (request, response, next) => {
   const { _id } = request.params;
 
   try {
-    const eraser = books.filter((book) => book._id !== _id);
-    console.log(eraser);
+    //const eraser = books.filter((book) => book._id !== _id);
+    //console.log(eraser);
+
+    if (!_id) {
+      throw new Error("ID is required");
+    }
+
+    await Book.findByIdAndDelete(_id);
 
     response.status(200).json({
       success: { message: "This route deleted a book by its id" },
       statusCode: 200,
     });
   } catch (error) {
-    return response.status(400).json({
-      error: { message: "There is an error when deleting a book" },
-    });
+    return next(error);
   }
 };
 
