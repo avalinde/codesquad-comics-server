@@ -76,7 +76,7 @@ const createBook = async (request, response, next) => {
 
 const updateBook = async (request, response, next) => {
   const { _id } = request.params;
-  const { title, author, publisher, pages, rating, synopsis, imageURL } =
+  const { title, author, publisher, genre, pages, rating, synopsis, imageUrl } =
     request.body;
 
   try {
@@ -91,6 +91,7 @@ const updateBook = async (request, response, next) => {
           title,
           author,
           publisher,
+          genre,
           pages,
           rating,
           synopsis,
